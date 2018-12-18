@@ -198,11 +198,17 @@ namespace PagarMe
         {
             UriBuilder uriBuilder = new UriBuilder(new Uri(_service.ApiEndpoint + Path));
             Tuple<string, string> authKey;
-
+            
             if (UseEncryptionKey)
-                authKey = new Tuple<string, string>("encryption_key", _service.EncryptionKey);
+            {
+                var encryptionKey = _service.EncryptionKey == null ? File.ReadLines("../pagarmeEncryptionKey.txt").First() : _service.EncryptionKey;
+                authKey = new Tuple<string, string>("encryption_key", encryptionKey);
+            }
             else
+            {
+                var apiKey = _service.ApiKey == null ? File.ReadLines("../pagarmeApiKey.txt").First() : _service.ApiKey;
                 authKey = new Tuple<string, string>("api_key", _service.ApiKey);
+            }
 
             uriBuilder.Query = BuildQueryString(Query.Concat(new[] { authKey }));
 
